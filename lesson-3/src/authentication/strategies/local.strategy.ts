@@ -16,7 +16,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
       email,
       password,
     );
-    console.log(user);
     return user;
   }
 }
