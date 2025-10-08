@@ -9,21 +9,4 @@ services:
       - /data/postgres:/data/postgres
     env_file:
       - docker.env
-    networks:
-      - postgres
 
-  adminer:
-    image: adminer
-    hostname: adminer
-    container_name: adminer
-    env_file:
-      - docker.env
-    restart: always
-    ports:
-      - '8080:80'
-    networks:
-      - postgres
-
-networks:
-  postgres:
-    driver: bridge

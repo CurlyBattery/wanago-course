@@ -34,10 +34,6 @@ export class UsersService {
     return user;
   }
 
-  findAll() {
-    return `This action returns all users`;
-  }
-
   async getByEmail(email: string) {
     const user = await this.usersRepo.findOne({
       where: { email },
@@ -46,13 +42,5 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
     return user;
-  }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
   }
 }
