@@ -1,0 +1,52 @@
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  HttpStatus,
+  HttpCode,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+
+import { PostsService } from './posts.service';
+import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
+import { JwtAuthGuard } from '../authentication/guards/jwt-auth.guard';
+import { RequestWithUser } from '../authentication/types/request-with-user.interface';
+
+@Controller('posts')
+export class PostsController {
+  constructor(private readonly postsService: PostsService) {}
+
+  @Post()
+  @UseGuards(JwtAuthGuard)
+  create(@Body() createPostDto: CreatePostDto, @Req() req: RequestWithUser) {
+    return this.postsService.create(createPostDto, req.user);
+  }
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  findAll() {
+    return this.postsService.findAll();
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.postsService.findOne(+id);
+  }
+
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
+    return this.postsService.update(+id, updatePostDto);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  remove(@Param('id') id: string) {
+    return this.postsService.remove(+id);
+  }
+}
