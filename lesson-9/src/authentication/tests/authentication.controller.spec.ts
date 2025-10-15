@@ -11,7 +11,6 @@ import { mockedJwtService } from '../../utils/mocks/jwt.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { mockedUser } from '../../utils/mocks/user';
 import * as request from 'supertest';
-import mocked = jest.mocked;
 
 describe('The Authentication Controller', () => {
   let app: INestApplication;
