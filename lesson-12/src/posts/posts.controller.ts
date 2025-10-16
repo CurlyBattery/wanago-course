@@ -10,14 +10,19 @@ import {
 import { CreatePostDto } from './dtos/create-post.dto';
 import { PostsService } from './posts.service';
 import { UpdatePostDto } from './dtos/update-post.dto';
+import { CurrentUser } from '@app/common';
+import { UserEntity } from '../users/entities/user.entity';
 
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Post()
-  create(@Body() createPostDto: CreatePostDto) {
-    return this.postsService.create(createPostDto);
+  create(
+    @Body() createPostDto: CreatePostDto,
+    @CurrentUser() user: UserEntity,
+  ) {
+    return this.postsService.create(createPostDto, user);
   }
 
   @Get()
