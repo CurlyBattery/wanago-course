@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { CreatePostDto } from './dtos/create-post.dto';
 import { PostsService } from './posts.service';
@@ -26,8 +27,8 @@ export class PostsController {
   }
 
   @Get()
-  findAll() {
-    return this.postsService.findAll();
+  findAll(@Query('search') search?: string) {
+    return this.postsService.findAll(search ? search : '');
   }
 
   @Get(':id')
