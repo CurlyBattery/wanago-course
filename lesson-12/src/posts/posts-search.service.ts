@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 import { PostEntity } from './entities/post.entity';
 import { PostSearchBody } from './types/post-search-body.interface';
-import { PostSearchResult } from './types/post-search-result.interface';
 
 @Injectable()
 export class PostsSearchService {
@@ -70,8 +69,9 @@ export class PostsSearchService {
     };
 
     const script = Object.entries(newBody).reduce((result, [key, value]) => {
-      return `${result} ctx._source.${key}=${value}`;
+      return `${result} ctx._source.${key}='${value}';`;
     }, '');
+    console.log(script);
 
     return this.elasticsearchService.updateByQuery({
       index: this.index,

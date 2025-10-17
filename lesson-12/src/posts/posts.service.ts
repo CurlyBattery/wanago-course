@@ -34,7 +34,10 @@ export class PostsService {
     if (!ids.length) {
       return [];
     }
-    return this.postsRepo.find({ where: { id: In(ids) } });
+    return this.postsRepo.find({
+      where: { id: In(ids) },
+      relations: ['author'],
+    });
   }
 
   async findOne(id: number) {
@@ -50,12 +53,14 @@ export class PostsService {
   }
 
   async update(id: number, dto: UpdatePostDto) {
-    const post = await this.postsRepo.findOne({
+    await this.postsRepo.update(id, dto);
+
+    const updatedPost = await this.postsRepo.findOne({
       where: { id },
+      relations: ['author'],
     });
-    if (post) {
-      const updatedPost = await this.postsRepo.update(id, dto);
-      return updatedPost;
+    if (updatedPost) {
+      return await this.postsSearchService.update(updatedPost);
     }
     throw new NotFoundException('Post not found');
   }
@@ -65,7 +70,9 @@ export class PostsService {
       where: { id },
     });
     if (post) {
-      return this.postsRepo.delete(id);
+      const post = await this.postsRepo.delete(id);
+      await this.postsSearchService.remove(id);
+      return post;
     }
     throw new NotFoundException('Post not found');
   }
