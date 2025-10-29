@@ -15,7 +15,6 @@ import { AuthenticationService } from './authentication.service';
 import { RegisterDto } from './dtos/register.dto';
 import { RequestWithUser } from './types/request-with-user.interface';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { Public } from '@app/common';
 
 @Controller('authentication')
@@ -28,9 +27,9 @@ export class AuthenticationController {
     return this.authenticationService.register(registerDto);
   }
 
+  @Public()
   @Post('log-in')
   @HttpCode(HttpStatus.OK)
-  @Public()
   @UseGuards(LocalAuthGuard)
   async login(
     @Req() req: RequestWithUser,
