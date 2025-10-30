@@ -6,7 +6,8 @@ import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dtos/register.dto';
 import { TokenPayload } from './types/token-payload.interface';
-import { addMinutes, differenceInMilliseconds } from 'date-fns';
+import { addDays, addMinutes, differenceInMilliseconds } from 'date-fns';
+import { RefreshTokenPayload } from './types/refresh-token-payload.interface';
 
 @Injectable()
 export class AuthenticationService {
@@ -32,15 +33,15 @@ export class AuthenticationService {
       throw new BadRequestException('Wrong credentials');
     }
 
-    const isPasswordMathcing = bcrypt.compareSync(password, user.password);
-    if (!isPasswordMathcing) {
+    const isPasswordMatching = bcrypt.compareSync(password, user.password);
+    if (!isPasswordMatching) {
       throw new BadRequestException('Wrong credentials');
     }
 
     return user;
   }
 
-  async getCookieWithJwt(userId: number, email: string) {
+  async getCookieWithJwtWithAccess(userId: number, email: string) {
     const payload: TokenPayload = { userId, email };
     const accessToken = await this.jwtService.signAsync(payload);
 
@@ -60,13 +61,27 @@ export class AuthenticationService {
     };
   }
 
-  async getCookieForLogout() {
+  async getCookieWithJwtWithRefresh(userId: number) {
+    const payload: RefreshTokenPayload = { userId };
+    const refreshToken = await this.jwtService.signAsync(payload, {
+      secret: this.configService.get('JWT_REFRESH_SECRET'),
+      expiresIn: this.configService.get('JWT_REFRESH_EXPIRATION_TIME'),
+    });
+
+    await this.usersService.setCurrentRefreshToken(refreshToken, userId);
+
     return {
-      accessToken: '',
+      refreshToken,
       cookieOptions: {
         httpOnly: true,
         path: '/',
-        maxAge: 0,
+        maxAge: differenceInMilliseconds(
+          addDays(
+            new Date(),
+            Number(this.configService.get('JWT_REFRESH_EXPIRATION_TIME')),
+          ),
+          new Date(),
+        ),
       },
     };
   }
