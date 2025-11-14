@@ -68,4 +68,10 @@ export class UsersService {
       return user;
     }
   }
+
+  removeRefreshToken(userId: number) {
+    return this.userRepository.update(userId, {
+      currentRefreshToken: null,
+    });
+  }
 }

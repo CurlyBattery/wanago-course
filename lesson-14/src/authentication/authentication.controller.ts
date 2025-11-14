@@ -16,13 +16,16 @@ import { cookieFactory, Public } from '@app/common';
 import { RegisterDto } from './dtos/register.dto';
 import { RequestWithUser } from './types/request-with-user.interface';
 import { LocalGuard } from './guards/local.guard';
-import { Cookie } from '@app/common/auth/cookie.decorator';
 import { ACCESS_COOKIE, REFRESH_COOKIE } from './constants';
 import { RefreshGuard } from './guards/refresh.guard';
+import { UsersService } from '../users/users.service';
 
 @Controller('authentication')
 export class AuthenticationController {
-  constructor(private readonly authenticationService: AuthenticationService) {}
+  constructor(
+    private readonly authenticationService: AuthenticationService,
+    private readonly usersService: UsersService,
+  ) {}
 
   @Public()
   @Post('register')
@@ -68,6 +71,9 @@ export class AuthenticationController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const cookies = cookieFactory(req, res);
+    const { user } = req;
+
+    await this.usersService.removeRefreshToken(user.id);
 
     cookies.remove(ACCESS_COOKIE);
     cookies.remove(REFRESH_COOKIE);

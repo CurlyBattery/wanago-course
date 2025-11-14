@@ -16,10 +16,14 @@ import { RegisterDto } from './dtos/register.dto';
 import { RequestWithUser } from './types/request-with-user.interface';
 import { LocalAuthGuard } from './guards/local.guard';
 import { cookieFactory, Public } from '@app/common';
+import { UsersService } from '../users/users.service';
 
 @Controller('authentication')
 export class AuthenticationController {
-  constructor(private readonly authenticationService: AuthenticationService) {}
+  constructor(
+    private readonly authenticationService: AuthenticationService,
+    private readonly usersService: UsersService,
+  ) {}
 
   @Public()
   @Post('register')
@@ -65,7 +69,6 @@ export class AuthenticationController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const cookies = cookieFactory(req, res);
-
-    cookies.remove('access_token');
+    await this.cookies.remove('access_token');
   }
 }

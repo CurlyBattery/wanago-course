@@ -1,7 +1,7 @@
 import {
   Column,
   Entity,
-  JoinColumn,
+  Index,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -18,6 +18,7 @@ export class Post {
   @Column()
   content: string;
 
+  @Index()
   @ManyToOne(() => User, (author: User) => author.posts, {})
   author: User;
 }
