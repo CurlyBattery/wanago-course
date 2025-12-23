@@ -1,13 +1,57 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+
 import { User } from './entities/user.entity';
+import { CreateUserDto } from './dtos/create-user.dto';
+import { HashService } from '../hash/hash.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
+    private readonly hashService: HashService,
   ) {}
 
-  findByIdOrEmail() {}
+  async create(dto: CreateUserDto) {
+    const existsUser = await this.usersRepository.findOne({
+      where: { email: dto.email },
+    });
+    if (existsUser) {
+      throw new ConflictException('User already exists');
+    }
+
+    const user = this.usersRepository.create(dto);
+    return this.usersRepository.save(user);
+  }
+
+  async findById(id: number) {
+    const user = await this.usersRepository.findOne({
+      where: { id },
+    });
+    if (!user) {
+      return null;
+    }
+
+    return user;
+  }
+
+  async findByEmail(email: string) {
+    const user = await this.usersRepository.findOne({
+      where: { email },
+    });
+    if (!user) {
+      return null;
+    }
+
+    return user;
+  }
+
+  async setRefreshToken(userId: number, refreshToken: string) {
+    const currentRefreshToken = await this.hashService.hash(refreshToken);
+
+    await this.usersRepository.update(userId, {
+      currentRefreshToken,
+    });
+  }
 }

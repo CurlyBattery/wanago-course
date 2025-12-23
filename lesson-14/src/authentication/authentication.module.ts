@@ -9,7 +9,6 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { APP_GUARD } from '@nestjs/core';
 import { AccessGuard } from './guards/access.guard';
 import { AccessStrategy } from './strategies/access.strategy';
-import { RefreshGuard } from './guards/refresh.guard';
 import { RefreshStrategy } from './strategies/refresh.strategy';
 
 @Module({
