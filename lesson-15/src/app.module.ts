@@ -5,6 +5,7 @@ import { UsersModule } from './users/users.module';
 import { AuthenticationModule } from './authentication/authentication.module';
 import { EnvModule } from './env/env.module';
 import { HashModule } from './hash/hash.module';
+import { PostsModule } from './posts/posts.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { HashModule } from './hash/hash.module';
     HashModule,
     UsersModule,
     AuthenticationModule,
+    PostsModule,
   ],
 })
 export class AppModule {}

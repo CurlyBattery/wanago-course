@@ -12,15 +12,16 @@ import { Request, Response } from 'express';
 import { AuthenticationService } from './authnetication.service';
 import { RegisterDto } from './dtos/register.dto';
 import { LoginDto } from './dtos/login.dto';
-import { AccessGuard } from './guards/access.guard';
-import { Cookie, cookieFactory } from '@app/app';
+import { cookieFactory } from '@app/app';
 import { ACCESS_COOKIE, REFRESH_COOKIE, RequestWithUser } from './types';
 import { RefreshGuard } from './guards/refresh.guard';
+import { Public } from '@app/app/auth/public.decorator';
 
 @Controller('authentication')
 export class AuthenticationController {
   constructor(private readonly authenticationService: AuthenticationService) {}
 
+  @Public()
   @Post('register')
   async register(
     @Body() registerDto: RegisterDto,
@@ -35,6 +36,7 @@ export class AuthenticationController {
     return { accessToken };
   }
 
+  @Public()
   @Post('log-in')
   async login(
     @Body() loginDto: LoginDto,
@@ -49,7 +51,6 @@ export class AuthenticationController {
     return { accessToken };
   }
 
-  @UseGuards(AccessGuard)
   @Get('me')
   me(@Req() req: RequestWithUser) {
     return req.user;

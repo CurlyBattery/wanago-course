@@ -9,6 +9,8 @@ import { EnvService } from '../env/env.service';
 import { HashModule } from '../hash/hash.module';
 import { AccessStrategy } from './strategies/access.strategy';
 import { RefreshStrategy } from './strategies/refresh.strategy';
+import { APP_GUARD } from '@nestjs/core';
+import { AccessGuard } from './guards/access.guard';
 
 @Module({
   imports: [
@@ -28,6 +30,14 @@ import { RefreshStrategy } from './strategies/refresh.strategy';
     HashModule,
   ],
   controllers: [AuthenticationController],
-  providers: [AuthenticationService, AccessStrategy, RefreshStrategy],
+  providers: [
+    AuthenticationService,
+    AccessStrategy,
+    RefreshStrategy,
+    {
+      provide: APP_GUARD,
+      useClass: AccessGuard,
+    },
+  ],
 })
 export class AuthenticationModule {}
