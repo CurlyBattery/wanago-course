@@ -89,7 +89,8 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^@app/app(|/.*)$": "<rootDir>/libs/app/src/$1"
+      "^@app/app(|/.*)$": "<rootDir>/libs/app/src/$1",
+      "^@app/minio(|/.*)$": "<rootDir>/libs/minio/src/$1"
     }
   }
 }

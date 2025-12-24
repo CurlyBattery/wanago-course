@@ -13,18 +13,19 @@ import { HashService } from '../hash/hash.service';
 import { User } from '../users/entities/user.entity';
 import { AccessPayload, RefreshPayload } from './types';
 import { Express } from 'express';
-import { S3Service } from '../s3/s3.service';
 import { DataSource } from 'typeorm';
-import { use } from 'passport';
+import { MinioService } from '@app/minio';
 
 @Injectable()
 export class AuthenticationService {
+  private readonly AVATARS_BUCKET = 'avatars';
+
   constructor(
     private readonly usersService: UsersService,
     private readonly envService: EnvService,
     private readonly jwtService: JwtService,
     private readonly hashService: HashService,
-    private readonly s3Service: S3Service,
+    private readonly minioService: MinioService,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -72,13 +73,26 @@ export class AuthenticationService {
       });
       const oldAvatarUrl = user?.avatarUrl;
 
-      const newAvatarUrl = await this.s3Service.uploadAvatar(userId, file);
+      const key = `${userId}-${Date.now()}.${file.originalname.split('.').pop()}`;
+
+      const newAvatarUrl = await this.minioService.upload(
+        this.AVATARS_BUCKET,
+        key,
+        file.buffer,
+        file.mimetype,
+      );
 
       await manager.update(User, userId, { avatarUrl: newAvatarUrl });
 
-      if (!oldAvatarUrl) {
+      if (oldAvatarUrl) {
         try {
-          await this.s3Service.deleteAvatar(oldAvatarUrl);
+          const oldKey = this.minioService.getKeyFromUrl(
+            oldAvatarUrl,
+            this.AVATARS_BUCKET,
+          );
+          if (oldKey) {
+            await this.minioService.delete(this.AVATARS_BUCKET, oldKey);
+          }
         } catch (err) {
           console.error('Failed to delete old avatar: ', err);
         }
@@ -102,7 +116,13 @@ export class AuthenticationService {
       await manager.update(User, userId, { avatarUrl: null });
 
       try {
-        await this.s3Service.deleteAvatar(user.avatarUrl);
+        const key = this.minioService.getKeyFromUrl(
+          user.avatarUrl,
+          this.AVATARS_BUCKET,
+        );
+        if (key) {
+          await this.minioService.delete(this.AVATARS_BUCKET, key);
+        }
       } catch (err) {
         console.error('Failed to delete avatar from S3: ', err);
       }
