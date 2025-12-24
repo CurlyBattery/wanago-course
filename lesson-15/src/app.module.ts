@@ -7,6 +7,7 @@ import { AuthenticationModule } from './authentication/authentication.module';
 import { EnvModule } from './env/env.module';
 import { HashModule } from './hash/hash.module';
 import { PostsModule } from './posts/posts.module';
+import { S3Module } from './s3/s3.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { PostsModule } from './posts/posts.module';
     DatabaseModule,
     EnvModule,
     HashModule,
+    S3Module,
     UsersModule,
     AuthenticationModule,
     PostsModule,

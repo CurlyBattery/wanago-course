@@ -16,4 +16,7 @@ export class User {
 
   @Column({ nullable: true })
   currentRefreshToken?: string;
+
+  @Column({ nullable: true })
+  avatarUrl?: string;
 }

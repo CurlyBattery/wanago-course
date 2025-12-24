@@ -13,6 +13,11 @@ export const envSchema = z.object({
   JWT_ACCESS_EXPIRATION_TIME: z.string(),
   JWT_REFRESH_SECRET: z.string(),
   JWT_REFRESH_EXPIRATION_TIME: z.string(),
+
+  MINIO_USER: z.string(),
+  MINIO_PASSWORD: z.string(),
+  MINIO_REGION: z.string(),
+  MINIO_ENDPOINT: z.string(),
 });
 
 export type Env = z.infer<typeof envSchema>;

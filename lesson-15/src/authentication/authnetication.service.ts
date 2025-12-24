@@ -3,7 +3,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtModuleAsyncOptions, JwtService, JwtSignOptions } from '@nestjs/jwt';
+import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 
 import { UsersService } from '../users/users.service';
 import { EnvService } from '../env/env.service';
@@ -12,6 +12,8 @@ import { LoginDto } from './dtos/login.dto';
 import { HashService } from '../hash/hash.service';
 import { User } from '../users/entities/user.entity';
 import { AccessPayload, RefreshPayload } from './types';
+import { Express } from 'express';
+import { S3Service } from '../s3/s3.service';
 
 @Injectable()
 export class AuthenticationService {
@@ -20,6 +22,7 @@ export class AuthenticationService {
     private readonly envService: EnvService,
     private readonly jwtService: JwtService,
     private readonly hashService: HashService,
+    private readonly s3Service: S3Service,
   ) {}
 
   async register(registerDto: RegisterDto) {
@@ -56,6 +59,14 @@ export class AuthenticationService {
 
   refresh(user: User) {
     return this.getTokens(user);
+  }
+
+  async uploadAvatar(userId: number, file: Express.Multer.File) {
+    const avatarUrl = await this.s3Service.uploadAvatar(userId, file);
+
+    await this.usersService.updateAvatarUrl(userId, avatarUrl);
+
+    return avatarUrl;
   }
 
   async getTokens(user: User) {

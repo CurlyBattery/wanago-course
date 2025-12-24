@@ -7,9 +7,11 @@ import {
   Post,
   Req,
   Res,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Express, Request, Response } from 'express';
 
 import { AuthenticationService } from './authnetication.service';
 import { RegisterDto } from './dtos/register.dto';
@@ -18,6 +20,7 @@ import { cookieFactory } from '@app/app';
 import { ACCESS_COOKIE, REFRESH_COOKIE, RequestWithUser } from './types';
 import { RefreshGuard } from './guards/refresh.guard';
 import { Public } from '@app/app/auth/public.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('authentication')
 export class AuthenticationController {
@@ -87,6 +90,20 @@ export class AuthenticationController {
 
     cookieLib.remove(ACCESS_COOKIE);
     cookieLib.remove(REFRESH_COOKIE);
+  }
+
+  @Post('avatar')
+  @UseInterceptors(FileInterceptor('avatar'))
+  async uploadAvatar(
+    @UploadedFile() file: Express.Multer.File,
+    @Req() req: RequestWithUser,
+  ) {
+    const avatarUrl = await this.authenticationService.uploadAvatar(
+      req.user.id,
+      file,
+    );
+
+    return { avatarUrl };
   }
 
   setTokensToCookies(

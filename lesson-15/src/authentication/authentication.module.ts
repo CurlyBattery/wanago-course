@@ -11,6 +11,7 @@ import { AccessStrategy } from './strategies/access.strategy';
 import { RefreshStrategy } from './strategies/refresh.strategy';
 import { APP_GUARD } from '@nestjs/core';
 import { AccessGuard } from './guards/access.guard';
+import { S3Module } from '../s3/s3.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { AccessGuard } from './guards/access.guard';
         }) as JwtModuleAsyncOptions,
     }),
     HashModule,
+    S3Module,
   ],
   controllers: [AuthenticationController],
   providers: [

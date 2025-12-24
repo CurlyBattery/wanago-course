@@ -54,4 +54,10 @@ export class UsersService {
       currentRefreshToken,
     });
   }
+
+  async updateAvatarUrl(userId: number, avatarUrl: string) {
+    await this.usersRepository.update(userId, {
+      avatarUrl,
+    });
+  }
 }
