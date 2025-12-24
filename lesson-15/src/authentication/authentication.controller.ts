@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   Post,
   Req,
   Res,
@@ -38,6 +40,7 @@ export class AuthenticationController {
 
   @Public()
   @Post('log-in')
+  @HttpCode(HttpStatus.OK)
   async login(
     @Body() loginDto: LoginDto,
     @Req() req: Request,
@@ -58,6 +61,7 @@ export class AuthenticationController {
 
   @UseGuards(RefreshGuard)
   @Post('refresh')
+  @HttpCode(HttpStatus.OK)
   async refresh(
     @Req() req: RequestWithUser,
     @Res({ passthrough: true }) res: Response,
@@ -72,6 +76,7 @@ export class AuthenticationController {
 
   @UseGuards(RefreshGuard)
   @Post('log-out')
+  @HttpCode(HttpStatus.OK)
   async logout(
     @Req() req: RequestWithUser,
     @Res({ passthrough: true }) res: Response,
