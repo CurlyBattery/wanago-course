@@ -60,4 +60,12 @@ export class UsersService {
       avatarUrl,
     });
   }
+
+  async getAvatarUrl(userId: number): Promise<string | null> {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      select: ['avatarUrl'],
+    });
+    return user?.avatarUrl || null;
+  }
 }

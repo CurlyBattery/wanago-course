@@ -14,6 +14,8 @@ import { User } from '../users/entities/user.entity';
 import { AccessPayload, RefreshPayload } from './types';
 import { Express } from 'express';
 import { S3Service } from '../s3/s3.service';
+import { DataSource } from 'typeorm';
+import { use } from 'passport';
 
 @Injectable()
 export class AuthenticationService {
@@ -23,6 +25,7 @@ export class AuthenticationService {
     private readonly jwtService: JwtService,
     private readonly hashService: HashService,
     private readonly s3Service: S3Service,
+    private readonly dataSource: DataSource,
   ) {}
 
   async register(registerDto: RegisterDto) {
@@ -62,11 +65,48 @@ export class AuthenticationService {
   }
 
   async uploadAvatar(userId: number, file: Express.Multer.File) {
-    const avatarUrl = await this.s3Service.uploadAvatar(userId, file);
+    return await this.dataSource.transaction(async (manager) => {
+      const user = await manager.findOne(User, {
+        where: { id: userId },
+        select: ['avatarUrl'],
+      });
+      const oldAvatarUrl = user?.avatarUrl;
 
-    await this.usersService.updateAvatarUrl(userId, avatarUrl);
+      const newAvatarUrl = await this.s3Service.uploadAvatar(userId, file);
 
-    return avatarUrl;
+      await manager.update(User, userId, { avatarUrl: newAvatarUrl });
+
+      if (!oldAvatarUrl) {
+        try {
+          await this.s3Service.deleteAvatar(oldAvatarUrl);
+        } catch (err) {
+          console.error('Failed to delete old avatar: ', err);
+        }
+      }
+
+      return newAvatarUrl;
+    });
+  }
+
+  async deleteAvatar(userId: number): Promise<void> {
+    return await this.dataSource.transaction(async (manager) => {
+      const user = await manager.findOne(User, {
+        where: { id: userId },
+        select: ['avatarUrl'],
+      });
+
+      if (!user?.avatarUrl) {
+        throw new BadRequestException('User has no avatar');
+      }
+
+      await manager.update(User, userId, { avatarUrl: null });
+
+      try {
+        await this.s3Service.deleteAvatar(user.avatarUrl);
+      } catch (err) {
+        console.error('Failed to delete avatar from S3: ', err);
+      }
+    });
   }
 
   async getTokens(user: User) {

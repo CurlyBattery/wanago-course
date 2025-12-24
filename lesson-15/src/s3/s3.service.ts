@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import {
   CreateBucketCommand,
+  DeleteObjectCommand,
   HeadBucketCommand,
   PutBucketPolicyCommand,
   PutObjectCommand,
@@ -27,8 +28,8 @@ export class S3Service implements OnModuleInit {
   }
 
   async onModuleInit() {
-    await this.setBucketPolicy();
     await this.createBucketIfNotExists();
+    await this.setBucketPolicy();
   }
 
   private async setBucketPolicy() {
@@ -94,5 +95,25 @@ export class S3Service implements OnModuleInit {
     );
 
     return `http://localhost:9000/${this.bucketName}/${key}`;
+  }
+
+  async deleteAvatar(avatarUrl: string): Promise<void> {
+    if (!avatarUrl) return;
+
+    const key = avatarUrl.split(`/${this.bucketName}/`)[1];
+    if (!key) return;
+
+    try {
+      await this.s3Client.send(
+        new DeleteObjectCommand({
+          Bucket: this.bucketName,
+          Key: key,
+        }),
+      );
+      console.log(`Avatar deleted: ${key}`);
+    } catch (err) {
+      console.error('Error deleting avatar from S3: ', err);
+      throw err;
+    }
   }
 }

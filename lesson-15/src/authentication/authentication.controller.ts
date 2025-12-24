@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -104,6 +105,12 @@ export class AuthenticationController {
     );
 
     return { avatarUrl };
+  }
+
+  @Delete('avatar')
+  async deleteAvatar(@Req() req: RequestWithUser) {
+    await this.authenticationService.deleteAvatar(req.user.id);
+    return { message: 'Avatar deleted successfully' };
   }
 
   setTokensToCookies(
