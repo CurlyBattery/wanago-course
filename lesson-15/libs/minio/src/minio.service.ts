@@ -9,6 +9,7 @@ import {
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
+
 import { MinioModuleOptions } from './interfaces/minio-options.interface';
 import { MINIO_MODULE_OPTIONS } from './constants';
 import { MinioBucketConfig } from './interfaces/minio-bucket-config.interface';
