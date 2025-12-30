@@ -8,17 +8,19 @@ import { Repository } from 'typeorm';
 
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dtos/create-user.dto';
+import { HashService } from '../hash/hash.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
+    private readonly hashService: HashService,
   ) {}
 
   async findOneById(id: number) {
     const user = await this.usersRepository.findOne({ where: { id } });
     if (!user) {
-      throw new NotFoundException('User not found');
+      return null;
     }
 
     return user;
@@ -27,7 +29,7 @@ export class UsersService {
   async findOneByEmail(email: string) {
     const user = await this.usersRepository.findOne({ where: { email } });
     if (!user) {
-      throw new NotFoundException('User not found');
+      return null;
     }
 
     return user;
@@ -48,5 +50,14 @@ export class UsersService {
     });
 
     return this.usersRepository.save(user);
+  }
+
+  async setRefreshToken(userId: number, refreshToken: string) {
+    const currentRefreshToken =
+      refreshToken === null ? null : await this.hashService.hash(refreshToken);
+
+    await this.usersRepository.update(userId, {
+      currentRefreshToken,
+    });
   }
 }

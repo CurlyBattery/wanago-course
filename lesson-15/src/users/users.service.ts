@@ -48,7 +48,7 @@ export class UsersService {
   }
 
   async setRefreshToken(userId: number, refreshToken: string) {
-    const currentRefreshToken = await this.hashService.hash(refreshToken);
+    const currentRefreshToken = refreshToken === null ? null : await this.hashService.hash(refreshToken);
 
     await this.usersRepository.update(userId, {
       currentRefreshToken,

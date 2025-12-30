@@ -4,7 +4,7 @@ import { Strategy } from 'passport-jwt';
 import { Request } from 'express';
 
 import { EnvService } from '../../env/env.service';
-import { AuthenticationService } from '../authnetication.service';
+import { AuthenticationService } from '../authentication.service';
 import { ACCESS_COOKIE, AccessPayload } from '../types';
 
 @Injectable()
