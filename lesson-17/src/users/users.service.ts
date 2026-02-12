@@ -1,25 +1,107 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { UserEntity } from './entities/user.entity';
+import { CreateUserDto } from './dtos/create-user.dto';
+import { UpdateUserDto } from './dtos/update-user.dto';
+import { HashService } from '../hash/hash.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
-    private readonly usersService: Repository<UserEntity>,
+    private readonly usersRepository: Repository<UserEntity>,
+    private readonly hashService: HashService,
   ) {}
 
-  create() {}
+  async create(createUserDto: CreateUserDto) {
+    const existsUser = await this.usersRepository.findOne({
+      where: { email: createUserDto.email },
+    });
+    if (existsUser) {
+      throw new ConflictException('User already exists');
+    }
 
-  updateUser(id: number) {}
+    try {
+      const hashedPassword = await this.hashService.hash(
+        createUserDto.password,
+      );
+      const newUser = this.usersRepository.create({
+        username: createUserDto.username,
+        email: createUserDto.email,
+        hashedPassword,
+      });
+      return this.usersRepository.save(newUser);
+    } catch (e: unknown) {
+      console.error('Error creating user ', e);
+      throw new BadRequestException('Error creating user');
+    }
+  }
 
-  deleteUser(id: number) {}
+  async updateUser(id: number, updateUserDto: UpdateUserDto) {
+    const findUser = await this.usersRepository.findOne({
+      where: { id },
+    });
+    if (!findUser) {
+      throw new NotFoundException('User not found');
+    }
 
-  findOneById(id: number) {}
+    try {
+      return this.usersRepository.update(id, {
+        username: updateUserDto.username,
+        email: updateUserDto.email,
+      });
+    } catch (e: unknown) {
+      console.error('Error updating user', e);
+      throw new BadRequestException('Error updating user');
+    }
+  }
 
-  findByEmail(email: string) {}
+  async deleteUser(id: number) {
+    const findUser = await this.usersRepository.findOne({
+      where: { id },
+    });
+    if (!findUser) {
+      throw new NotFoundException('User not found');
+    }
 
-  findAllUsers() {}
+    try {
+      await this.usersRepository.delete(id);
+    } catch (e: unknown) {
+      console.error('Error deleting user', e);
+      throw new BadRequestException('Error deleting user');
+    }
+  }
+
+  async findOneById(id: number) {
+    const findUser = await this.usersRepository.findOne({
+      where: { id },
+    });
+    if (!findUser) {
+      return null;
+    }
+
+    return findUser;
+  }
+
+  async findByEmail(email: string) {
+    const findUser = await this.usersRepository.findOne({
+      where: { email },
+    });
+    if (!findUser) {
+      return null;
+    }
+
+    return findUser;
+  }
+
+  findAllUsers() {
+    return this.usersRepository.find();
+  }
 }

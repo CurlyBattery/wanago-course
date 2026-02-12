@@ -9,6 +9,7 @@ import { EnvService } from '../env/env.service';
       imports: [EnvModule],
       inject: [EnvService],
       useFactory: (envService: EnvService) => ({
+        type: 'postgres',
         host: envService.get('DATABASE_HOST'),
         port: +envService.get('DATABASE_PORT')!,
         username: envService.get('DATABASE_USERNAME'),
