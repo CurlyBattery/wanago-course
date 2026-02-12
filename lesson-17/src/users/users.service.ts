@@ -63,6 +63,20 @@ export class UsersService {
     }
   }
 
+  async updateRefreshToken(id: number, refreshToken: string | null) {
+    const currentRefreshToken =
+      refreshToken === null ? null : await this.hashService.hash(refreshToken);
+
+    try {
+      await this.usersRepository.update(id, {
+        currentRefreshToken: currentRefreshToken! ?? null,
+      });
+    } catch (e) {
+      console.error('Error updating refresh token ', e);
+      throw new BadRequestException('Error updating refresh token');
+    }
+  }
+
   async deleteUser(id: number) {
     const findUser = await this.usersRepository.findOne({
       where: { id },

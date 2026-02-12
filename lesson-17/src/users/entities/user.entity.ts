@@ -19,6 +19,9 @@ export class UserEntity {
   @Column()
   hashedPassword: string;
 
+  @Column({ nullable: true })
+  currentRefreshToken?: string;
+
   @CreateDateColumn()
   created_at: Date;
 }

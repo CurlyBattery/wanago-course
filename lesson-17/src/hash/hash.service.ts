@@ -14,7 +14,7 @@ export class HashService {
 
   async verify(raw: string, hashed: string) {
     try {
-      return argon2.verify(raw, hashed);
+      return argon2.verify(hashed, raw);
     } catch (e: unknown) {
       console.error('Error matching raws', e);
       throw new BadRequestException('Error matching raws');
