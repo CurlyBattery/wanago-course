@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { HashModule } from './hash/hash.module';
 import { AuthModule } from './auth/auth.module';
 import { EnvService } from './env/env.service';
+import { PostsModule } from './posts/posts.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { EnvService } from './env/env.service';
     }),
     UsersModule,
     AuthModule,
+    PostsModule,
   ],
 })
 export class AppModule {}
