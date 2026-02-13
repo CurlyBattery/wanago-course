@@ -7,18 +7,23 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
+  Req,
 } from '@nestjs/common';
+
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dtos/create-post.dto';
 import { UpdatePostDto } from './dtos/update-post.dto';
+import { PaginationPostsParam } from './dtos/pagination-posts.param';
+import type { RequestWithUser } from '../auth/types';
 
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Post()
-  createPost(@Body() dto: CreatePostDto) {
-    return this.postsService.createPost(dto);
+  createPost(@Req() req: RequestWithUser, @Body() dto: CreatePostDto) {
+    return this.postsService.createPost(req.user.id, dto);
   }
 
   @Patch(':id')
@@ -35,8 +40,8 @@ export class PostsController {
   }
 
   @Get()
-  findAllPosts() {
-    return this.postsService.findAllPosts();
+  findAllPosts(@Query() { offset, limit }: PaginationPostsParam) {
+    return this.postsService.findAllPosts(offset, limit);
   }
 
   @Get(':id')

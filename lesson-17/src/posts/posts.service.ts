@@ -12,9 +12,16 @@ export class PostsService {
     private readonly postsRepository: Repository<PostEntity>,
   ) {}
 
-  async createPost(createPostDto: CreatePostDto) {
+  async createPost(userId: number, createPostDto: CreatePostDto) {
     try {
+      const user = await this.postsRepository.findOne({
+        where: { id: userId },
+      });
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
       const newPost = this.postsRepository.create({
+        author: user,
         title: createPostDto.title,
         description: createPostDto.description,
       });
@@ -44,9 +51,22 @@ export class PostsService {
     return this.postsRepository.delete(id);
   }
 
-  async findAllPosts() {
-    return this.postsRepository.find();
+  async findAllPosts(offset?: number, limit?: number) {
+    const [items, count] = await this.postsRepository.findAndCount({
+      relations: ['author'],
+      order: {
+        id: 'ASC',
+      },
+      skip: offset,
+      take: limit,
+    });
+
+    return {
+      items,
+      count,
+    };
   }
+
   async findOnePost(id: number) {
     const post = await this.postsRepository.findOne({
       where: { id },
