@@ -22,6 +22,9 @@ export class UserEntity {
   @Column({ nullable: true })
   currentRefreshToken?: string;
 
+  @Column({ nullable: true })
+  avatarUrl?: string;
+
   @CreateDateColumn()
   created_at: Date;
 }

@@ -29,7 +29,6 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const cookieLib = cookieFactory(req, res);
     const { accessToken, refreshToken } = await this.authService.register(dto);
 
     this.setTokensToCookie(req, res, accessToken, refreshToken);
@@ -58,7 +57,7 @@ export class AuthController {
 
   @Get('me')
   me(@Req() req: RequestWithUser) {
-    console.log(req.user);
+    return req.user;
   }
 
   @Post('logout')
