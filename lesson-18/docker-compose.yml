@@ -1,0 +1,14 @@
+services:
+  db:
+    container_name: db
+    image: postgres:latest
+    env_file:
+      - .docker.env
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres-data:/data/postgres
+
+volumes:
+  postgres-data:
+    driver: local
